@@ -18,7 +18,7 @@ window.addEventListener('load', function () {
     }
 
     let numberButton = id => {
-        document.getElementById(id).addEventListener('click', function () {
+        document.getElementById('button-' + id).addEventListener('click', function () {
 
             if (evaluated) {
                 resetScreen();
@@ -39,7 +39,7 @@ window.addEventListener('load', function () {
                 resetScreen();
             }
 
-            if (input.includes('.')) return;
+            if (input.includes('.')) return; // only one decimal allowed per input
             else if (input.length == 0) {
                 input += "0.";
             } else {
@@ -51,9 +51,14 @@ window.addEventListener('load', function () {
         })
     }
 
-    let operatorButton = operator => {
-        document.getElementById(operator).addEventListener('click', function () {
+    let operatorButton = operatorId => {
+        document.getElementById(operatorId).addEventListener('click', function () {
+            let operator;
 
+            if (operatorId == 'divide-button') { operator = '/'}
+            else if (operatorId == 'multiply-button') { operator = '*' }
+            else if (operatorId == 'add-button') { operator = '+' }
+            else { operator = '-' }
             if (evaluated) {
                 evaluated = false;
             }
@@ -102,7 +107,7 @@ window.addEventListener('load', function () {
     }
 
     let evaluate = () => {
-        document.getElementById('=').addEventListener('click', function() {
+        document.getElementById('equals-button').addEventListener('click', function() {
             if (history.length != 0) {
                 if (input.length == 0 && isNaN(Number(history.substr(-1, 1)))) {
                     history = history.substr(0, history.length - 1);
@@ -118,6 +123,7 @@ window.addEventListener('load', function () {
                 
                 //reset input back to empty after evaluating - otherwise further entries are concatenated
                 //onto output
+                history = input.toString();
                 input = "";
             }
 
@@ -129,10 +135,10 @@ window.addEventListener('load', function () {
     for (let i = 0; i < 10; i++) numberButton(i.toString());
 
     //listeners for operator and decimal buttons
-    operatorButton('+');
-    operatorButton('-');
-    operatorButton('*');
-    operatorButton('/');
+    operatorButton('add-button');
+    operatorButton('minus-button');
+    operatorButton('multiply-button');
+    operatorButton('divide-button');
     decimalButton();
 
     //listeners for backspace, clear and evaluation buttons
