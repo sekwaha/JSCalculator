@@ -4,8 +4,12 @@ window.addEventListener('load', function () {
     let history = "";
     let evaluated = false; // blocks certain actions occuring that lead to weird stuff
 
+    let commaFormat = string => {
+        return Number(string).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 10 });
+    }
+
     let updateDisplay = () => {
-        document.getElementById('input-screen').innerHTML = input;
+        document.getElementById('input-screen').innerHTML = commaFormat(input);
         document.getElementById('history-screen').innerHTML = history;
     }
 
@@ -145,5 +149,7 @@ window.addEventListener('load', function () {
     backspaceButton();
     clearButton();
     evaluate();
+
+    updateDisplay();
 
 })
