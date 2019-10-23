@@ -2,15 +2,50 @@ window.addEventListener('load', function () {
 
     let input = "";
     let history = "";
-    let evaluated = false; // blocks certain actions occuring that lead to weird stuff
+    // evaluated condition escapes some functions to prevent unwanted concatenation
+    // evaluate() sets evaluated to true, resetScreen() and clearButton() set it to false
+    let evaluated = false;
+    let operatorIds = ['add-button', 'minus-button', 'multiply-button', 'divide-button'];
+
+
 
     let commaFormat = string => {
-        return Number(string).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 10 });
+        return Number(string).toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 10
+        });
     }
 
     let updateDisplay = () => {
+
         document.getElementById('input-screen').innerHTML = commaFormat(input);
+
+
         document.getElementById('history-screen').innerHTML = history;
+        /*
+
+        I don't know why, but the following should work but instead screws everything up
+    
+
+        // the following assigns or removes a class to the decimal button element used to change
+        // colour of the decimal button when it's been clicked during an input
+
+        let decimal = document.getElementById('decimal-button');
+
+        if (input.length == 0 && !decimal.classList.contains('decimal-clicked')) {
+            return;
+        } else if (input.length == 0 && decimal.classList.contains('decimal-clicked')) {
+            decimal.classList.remove('decimal-clicked');
+            this.console.log('removed')
+        } else if (input.substr(-1, 1) == '.' && !decimal.classList.contains('decimal-clicked')) {
+            decimal.classList.add('decimal-clicked');
+        } else if (input.substr(-1, 1) != '.' && decimal.classList.contains('decimal-clicked')) {
+            decimal.classList.remove('decimal-clicked');
+        } else {
+            return;
+        }
+        */
+
     }
 
     let resetScreen = () => {
@@ -22,67 +57,130 @@ window.addEventListener('load', function () {
     }
 
     let numberButton = id => {
-        document.getElementById('button-' + id).addEventListener('click', function () {
 
-            if (evaluated) {
-                resetScreen();
+        if (evaluated) {
+            resetScreen();
+        }
+
+        // prevents string beginning with 0, and caps entry length to 9
+        if ((input.length == 0 && id == '0') || input.length > 9) return;
+        else input += id;
+
+        updateDisplay();
+
+    }
+
+    let keyPress = () => {
+
+        document.addEventListener('keydown', event => {
+
+            if (event.keyCode == 48 || event.keyCode == 96) {
+                numberButton('0');
             }
-
-            // prevents string beginning with 0, and caps entry length to 9
-            if ((input.length == 0 && id == '0') || input.length > 9) return;
-            else input += id;
-
-            updateDisplay();
+            if (event.keyCode == 49 || event.keyCode == 97) {
+                numberButton('1');
+            }
+            if (event.keyCode == 50 || event.keyCode == 98) {
+                numberButton('2');
+            }
+            if (event.keyCode == 51 || event.keyCode == 99) {
+                numberButton('3');
+            }
+            if (event.keyCode == 52 || event.keyCode == 100) {
+                numberButton('4');
+            }
+            if (event.keyCode == 53 || event.keyCode == 101) {
+                numberButton('5');
+            }
+            if (event.keyCode == 54 || event.keyCode == 102) {
+                numberButton('6');
+            }
+            if (event.keyCode == 55 || event.keyCode == 103) {
+                numberButton('7');
+            }
+            if (event.keyCode == 56 || event.keyCode == 104) {
+                numberButton('8');
+            }
+            if (event.keyCode == 57 || event.keyCode == 105) {
+                numberButton('9');
+            }
+            if ((event.shiftKey && event.keyCode == 61) || event.keyCode == 107) {
+                operatorButton('add-button');
+            }
+            if (event.keyCode == 173 || event.keyCode == 109) {
+                operatorButton('minus-button');
+            }
+            if ((event.shiftKey && event.keyCode == 56) || event.keyCode == 106) {
+                operatorButton('multiply-button');
+            }
+            if (event.keyCode == 191 || event.keyCode == 111) {
+                operatorButton('divide-button');
+            }
+            if (event.keyCode == 110 || event.keyCode == 190) {
+                decimalButton();
+            }
+            if (event.keyCode == 8) {
+                backspaceButton();
+            }
+            if (event.keyCode == 27) {
+                clearButton();
+            }
+            if (event.keyCode == 61 || event.keyCode == 13) {
+                evaluate();
+            }
         })
     }
 
+
     let decimalButton = () => {
-        document.getElementById('decimal-button').addEventListener('click', function() {
 
-            if (evaluated) {
-                resetScreen();
-            }
+        if (evaluated) {
+            resetScreen();
+        }
 
-            if (input.includes('.')) return; // only one decimal allowed per input
-            else if (input.length == 0) {
-                input += "0.";
-            } else {
-                input += ".";
-            }
+        if (input.includes('.')) return; // only one decimal allowed per input
+        else if (input.length == 0) {
+            input += "0.";
+        } else {
+            input += ".";
+        }
 
-            updateDisplay();
+        updateDisplay();
 
-        })
     }
 
     let operatorButton = operatorId => {
-        document.getElementById(operatorId).addEventListener('click', function () {
-            let operator;
+        let operator;
 
-            if (operatorId == 'divide-button') { operator = '/'}
-            else if (operatorId == 'multiply-button') { operator = '*' }
-            else if (operatorId == 'add-button') { operator = '+' }
-            else { operator = '-' }
-            if (evaluated) {
-                evaluated = false;
-            }
+        if (operatorId == 'divide-button') {
+            operator = '/'
+        } else if (operatorId == 'multiply-button') {
+            operator = '*'
+        } else if (operatorId == 'add-button') {
+            operator = '+'
+        } else {
+            operator = '-'
+        }
+        if (evaluated) {
+            evaluated = false;
+        }
 
-            // prevent operators being entered before the user has entered an input value
-            // allows user to begin first entry with a minus operator, for negative numbers
-            if (history.length == 0 && input.length == 0 && operator != '-') {
-                return;
-            } else if (history.length == 0 && input.length == 0 && operator == '-') {
-                input = "-";
-            } else if (isNaN(Number(history.substr(-1, 1))) && input.length == 0) {
-                history = history.substr(0, history.length - 1) + operator;
-            } else {
-                history += input;
-                history += operator;
-                input = "";
-            }
+        // prevent operators being entered before the user has entered an input value
+        // allows user to begin first entry with a minus operator, for negative numbers
+        if (history.length == 0 && input.length == 0 && operator != '-') {
+            return;
+        } else if (history.length == 0 && input.length == 0 && operator == '-') {
+            input = "-";
+        } else if (isNaN(Number(history.substr(-1, 1))) && input.length == 0) {
+            history = history.substr(0, history.length - 1) + operator;
+        } else {
+            history += input;
+            history += operator;
+            input = "";
+        }
 
-            updateDisplay();
-        })
+        updateDisplay();
+
     }
 
     let backspaceButton = () => {
@@ -91,65 +189,89 @@ window.addEventListener('load', function () {
             return;
         }
 
-        document.getElementById('backspace-button').addEventListener('click', function () {
-            if (input.length > 0) {
-                input = input.substr(0, input.length - 1);
-                updateDisplay();
-            }
-        })
+        if (input.length > 0) {
+            input = input.substr(0, input.length - 1);
+            updateDisplay();
+        }
+
     }
 
     let clearButton = () => {
-        document.getElementById('clear-button').addEventListener('click', function() {
-            input = "";
-            history = "";
-            evaluated = false;
 
-            updateDisplay();
+        input = "";
+        history = "";
+        evaluated = false;
 
-        })
+        updateDisplay();
     }
 
     let evaluate = () => {
-        document.getElementById('equals-button').addEventListener('click', function() {
-            if (history.length != 0) {
-                if (input.length == 0 && isNaN(Number(history.substr(-1, 1)))) {
-                    history = history.substr(0, history.length - 1);
-                } else {
-                    history += input;
-                }
 
-                
-                input = eval(history);
-
-
-                updateDisplay();
-                
-                //reset input back to empty after evaluating - otherwise further entries are concatenated
-                //onto output
-                history = input.toString();
-                input = "";
+        if (history.length != 0) {
+            if (input.length == 0 && isNaN(Number(history.substr(-1, 1)))) {
+                history = history.substr(0, history.length - 1);
+            } else {
+                history += input;
             }
 
-            evaluated = true;
+
+            input = eval(history).toString();
+
+
+            updateDisplay();
+
+            //reset input back to empty after evaluating - otherwise further entries are concatenated
+            //onto output
+            history = input;
+            input = "";
+        }
+
+        evaluated = true;
+
+    }
+
+    // event listeners for number buttons
+
+    for (let i = 0; i < 10; i++) {
+        document.getElementById('button-' + i.toString()).addEventListener('click', function () {
+            numberButton(i.toString())
         })
     }
 
-    // creating listeners for number buttons
-    for (let i = 0; i < 10; i++) numberButton(i.toString());
+    // event listeners for operator and decimal buttons
 
-    //listeners for operator and decimal buttons
-    operatorButton('add-button');
-    operatorButton('minus-button');
-    operatorButton('multiply-button');
-    operatorButton('divide-button');
-    decimalButton();
+    for (let i = 0; i < operatorIds.length; i++) {
+        document.getElementById(operatorIds[i]).addEventListener('click', function () {
+            operatorButton(operatorIds[i]);
+        })
+    }
 
-    //listeners for backspace, clear and evaluation buttons
-    backspaceButton();
-    clearButton();
-    evaluate();
+    // event listeners for equals, clear and backspace buttons
+
+    document.getElementById('equals-button').addEventListener('click', function () {
+        evaluate();
+    })
+
+    document.getElementById('backspace-button').addEventListener('click', function () {
+        backspaceButton();
+    })
+
+    document.getElementById('clear-button').addEventListener('click', function () {
+        clearButton();
+    })
+
+    // event listener for decimal button
+
+    document.getElementById('decimal-button').addEventListener('click', function () {
+        decimalButton();
+    })
+
+    //listeners for keypresses
+    keyPress();
+
 
     updateDisplay();
 
 })
+
+//todo ------ change how backspace and clear button work - remove event listeners within functions

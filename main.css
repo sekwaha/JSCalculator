@@ -138,3 +138,7 @@ button {
     background: #30c930;
     grid-area: equals;
 }
+
+.decimal-clicked {
+    background: yellow;
+}
