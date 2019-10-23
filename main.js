@@ -48,7 +48,7 @@ window.addEventListener('load', function () {
 
     let resetScreen = () => {
         calcState.input = "";
-        calcStatehistory = "";
+        calcState.history = "";
         calcState.evaluated = false;
 
         updateDisplay();
