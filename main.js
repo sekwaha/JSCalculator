@@ -1,13 +1,11 @@
 window.addEventListener('load', function () {
 
-    let input = "";
-    let history = "";
-    // evaluated condition escapes some functions to prevent unwanted concatenation
-    // evaluate() sets evaluated to true, resetScreen() and clearButton() set it to false
-    let evaluated = false;
-    let operatorIds = ['add-button', 'minus-button', 'multiply-button', 'divide-button'];
-
-
+    let calcState = {
+        input: '',
+        history: '',
+        evaluated: false,
+        operatorIds: ['add-button', 'minus-button', 'multiply-button', 'divide-button']
+    }
 
     let commaFormat = string => {
         return Number(string).toLocaleString(undefined, {
@@ -18,10 +16,10 @@ window.addEventListener('load', function () {
 
     let updateDisplay = () => {
 
-        document.getElementById('input-screen').innerHTML = commaFormat(input);
+        document.getElementById('input-screen').innerHTML = commaFormat(calcState.input);
 
 
-        document.getElementById('history-screen').innerHTML = history;
+        document.getElementById('history-screen').innerHTML = calcState.history;
         /*
 
         I don't know why, but the following should work but instead screws everything up
@@ -49,22 +47,22 @@ window.addEventListener('load', function () {
     }
 
     let resetScreen = () => {
-        input = "";
-        history = "";
-        evaluated = false;
+        calcState.input = "";
+        calcStatehistory = "";
+        calcState.evaluated = false;
 
         updateDisplay();
     }
 
     let numberButton = id => {
 
-        if (evaluated) {
+        if (calcState.evaluated) {
             resetScreen();
         }
 
         // prevents string beginning with 0, and caps entry length to 9
-        if ((input.length == 0 && id == '0') || input.length > 9) return;
-        else input += id;
+        if ((calcState.input.length == 0 && id == '0') || calcState.input.length > 9) return;
+        else calcState.input += id;
 
         updateDisplay();
 
@@ -134,15 +132,15 @@ window.addEventListener('load', function () {
 
     let decimalButton = () => {
 
-        if (evaluated) {
+        if (calcState.evaluated) {
             resetScreen();
         }
 
-        if (input.includes('.')) return; // only one decimal allowed per input
-        else if (input.length == 0) {
-            input += "0.";
+        if (calcState.input.includes('.')) return; // only one decimal allowed per input
+        else if (calcState.input.length == 0) {
+            calcState.input += "0.";
         } else {
-            input += ".";
+            calcState.input += ".";
         }
 
         updateDisplay();
@@ -161,22 +159,22 @@ window.addEventListener('load', function () {
         } else {
             operator = '-'
         }
-        if (evaluated) {
-            evaluated = false;
+        if (calcState.evaluated) {
+            calcState.evaluated = false;
         }
 
         // prevent operators being entered before the user has entered an input value
         // allows user to begin first entry with a minus operator, for negative numbers
-        if (history.length == 0 && input.length == 0 && operator != '-') {
+        if (calcState.history.length == 0 && calcState.input.length == 0 && operator != '-') {
             return;
-        } else if (history.length == 0 && input.length == 0 && operator == '-') {
+        } else if (calcState.history.length == 0 && calcState.input.length == 0 && operator == '-') {
             input = "-";
-        } else if (isNaN(Number(history.substr(-1, 1))) && input.length == 0) {
-            history = history.substr(0, history.length - 1) + operator;
+        } else if (isNaN(Number(calcState.history.substr(-1, 1))) && calcState.input.length == 0) {
+            calcState.history = calcState.history.substr(0, calcState.history.length - 1) + operator;
         } else {
-            history += input;
-            history += operator;
-            input = "";
+            calcState.history += calcState.input;
+            calcState.history += operator;
+            calcState.input = "";
         }
 
         updateDisplay();
@@ -185,12 +183,12 @@ window.addEventListener('load', function () {
 
     let backspaceButton = () => {
 
-        if (evaluated) {
+        if (calcState.evaluated) {
             return;
         }
 
-        if (input.length > 0) {
-            input = input.substr(0, input.length - 1);
+        if (calcState.input.length > 0) {
+            calcState.input = calcState.input.substr(0, calcState.input.length - 1);
             updateDisplay();
         }
 
@@ -198,35 +196,35 @@ window.addEventListener('load', function () {
 
     let clearButton = () => {
 
-        input = "";
-        history = "";
-        evaluated = false;
+        calcState.input = "";
+        calcState.history = "";
+        calcState.evaluated = false;
 
         updateDisplay();
     }
 
     let evaluate = () => {
 
-        if (history.length != 0) {
-            if (input.length == 0 && isNaN(Number(history.substr(-1, 1)))) {
-                history = history.substr(0, history.length - 1);
+        if (calcState.history.length != 0) {
+            if (calcState.input.length == 0 && isNaN(Number(calcState.history.substr(-1, 1)))) {
+                calcState.history = calcState.history.substr(0, calcState.history.length - 1);
             } else {
-                history += input;
+                calcState.history += calcState.input;
             }
 
 
-            input = eval(history).toString();
+            calcState.input = eval(calcState.history).toString();
 
 
             updateDisplay();
 
             //reset input back to empty after evaluating - otherwise further entries are concatenated
             //onto output
-            history = input;
-            input = "";
+            calcState.history = calcState.input;
+            calcState.input = "";
         }
 
-        evaluated = true;
+        calcState.evaluated = true;
 
     }
 
@@ -240,9 +238,9 @@ window.addEventListener('load', function () {
 
     // event listeners for operator and decimal buttons
 
-    for (let i = 0; i < operatorIds.length; i++) {
-        document.getElementById(operatorIds[i]).addEventListener('click', function () {
-            operatorButton(operatorIds[i]);
+    for (let i = 0; i < calcState.operatorIds.length; i++) {
+        document.getElementById(calcState.operatorIds[i]).addEventListener('click', function () {
+            operatorButton(calcState.operatorIds[i]);
         })
     }
 
