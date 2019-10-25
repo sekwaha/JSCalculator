@@ -7,6 +7,9 @@ window.addEventListener('load', function () {
         operatorIds: ['add-button', 'minus-button', 'multiply-button', 'divide-button']
     }
 
+
+    // formats string with commas, used to be called in updateDisplay on the input-screen element
+    // removed because formatting the input string caused things to display incorrectly
     let commaFormat = string => {
         return Number(string).toLocaleString(undefined, {
             minimumFractionDigits: 0,
@@ -16,34 +19,8 @@ window.addEventListener('load', function () {
 
     let updateDisplay = () => {
 
-        document.getElementById('input-screen').innerHTML = commaFormat(calcState.input);
-
-
+        document.getElementById('input-screen').innerHTML = calcState.input;
         document.getElementById('history-screen').innerHTML = calcState.history;
-        /*
-
-        I don't know why, but the following should work but instead screws everything up
-    
-
-        // the following assigns or removes a class to the decimal button element used to change
-        // colour of the decimal button when it's been clicked during an input
-
-        let decimal = document.getElementById('decimal-button');
-
-        if (input.length == 0 && !decimal.classList.contains('decimal-clicked')) {
-            return;
-        } else if (input.length == 0 && decimal.classList.contains('decimal-clicked')) {
-            decimal.classList.remove('decimal-clicked');
-            this.console.log('removed')
-        } else if (input.substr(-1, 1) == '.' && !decimal.classList.contains('decimal-clicked')) {
-            decimal.classList.add('decimal-clicked');
-        } else if (input.substr(-1, 1) != '.' && decimal.classList.contains('decimal-clicked')) {
-            decimal.classList.remove('decimal-clicked');
-        } else {
-            return;
-        }
-        */
-
     }
 
     let resetScreen = () => {
@@ -124,6 +101,8 @@ window.addEventListener('load', function () {
                 clearButton();
             }
             if (event.keyCode == 61 || event.keyCode == 13) {
+                // preventDefault prevents enter key from triggering button event if button is focused
+                event.preventDefault();
                 evaluate();
             }
         })
